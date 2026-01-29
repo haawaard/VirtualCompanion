@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Pressed/Clicked state - More opaque and brighter -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <solid android:color="#B3FFFFFF" />
+            <stroke
+                android:width="3dp"
+                android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Focused state -->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <solid android:color="#99FFFFFF" />
+            <stroke
+                android:width="2.5dp"
+                android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Normal state - Glass effect -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <solid android:color="#80FFFFFF" />
+            <stroke
+                android:width="2dp"
+                android:color="#EEFFFFFF" />
+        </shape>
+    </item>
+</selector>
