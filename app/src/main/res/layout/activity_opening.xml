@@ -7,7 +7,6 @@
     android:clickable="true"
     android:focusable="true">
 
-
     <!-- Background Image -->
     <ImageView
         android:id="@+id/backgroundImage"
@@ -22,42 +21,48 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Gradient Overlay for depth -->
+
+    <!-- Pet Image with shadow effect -->
+
+    <!-- App Name - can move freely, centered around image bottom -->
+
+    <!-- Decorative line under text -->
+
     <View
+        android:id="@+id/gradientOverlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/gradient_overlay"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <!-- Pet Image with shadow effect -->
-
-    <!-- App Name overlaying the image -->
-
-    <!-- Decorative line under text -->
-
-    <ImageView
-        android:id="@+id/petImage"
-        android:layout_width="413dp"
-        android:layout_height="355dp"
-        android:contentDescription="Pet"
-        android:elevation="12dp"
-        android:src="@drawable/head"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.412" />
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageView
+        android:id="@+id/petImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="Pet"
+        android:elevation="12dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/head"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.306"
+        app:layout_constraintWidth_percent="0.9" />
 
     <TextView
         android:id="@+id/appName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-80dp"
+        android:layout_marginTop="-95dp"
         android:elevation="16dp"
         android:fontFamily="@font/nunito_black"
         android:letterSpacing="0.05"
@@ -68,20 +73,25 @@
         android:text="ECHO"
         android:textColor="#FFFFFF"
         android:textSize="72sp"
+        app:autoSizeMaxTextSize="72sp"
+        app:autoSizeMinTextSize="48sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/petImage" />
 
     <View
-        android:layout_width="120dp"
+        android:id="@+id/decorativeLine"
+        android:layout_width="0dp"
         android:layout_height="4dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/decorative_line"
         android:elevation="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appName" />
+        app:layout_constraintEnd_toEndOf="@id/appName"
+        app:layout_constraintStart_toStartOf="@id/appName"
+        app:layout_constraintTop_toBottomOf="@id/appName"
+        app:layout_constraintWidth_percent="0.6" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

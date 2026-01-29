@@ -313,8 +313,8 @@
             <!-- Save Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveButton"
-                android:layout_width="200dp"
-                android:layout_height="60dp"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:text="Save"
                 android:textColor="#FFFFFF"
@@ -334,20 +334,20 @@
                 app:elevation="12dp"
                 app:strokeColor="#EEFFFFFF"
                 app:strokeWidth="2dp"
-                android:layout_marginTop="24dp" />
+                android:layout_marginTop="1dp" />
 
         </LinearLayout>
 
     </ScrollView>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation - Always at bottom -->
     <LinearLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:paddingVertical="20dp"
+        android:paddingVertical="16dp"
         android:background="@drawable/nav_background"
         android:elevation="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -357,7 +357,7 @@
         <ImageView
             android:id="@+id/navHome"
             android:layout_width="0dp"
-            android:layout_height="32dp"
+            android:layout_height="28dp"
             android:layout_weight="1"
             android:src="@drawable/ic_home"
             android:contentDescription="Home"
@@ -368,10 +368,10 @@
         <ImageView
             android:id="@+id/navQuests"
             android:layout_width="0dp"
-            android:layout_height="32dp"
+            android:layout_height="28dp"
             android:layout_weight="1"
             android:src="@drawable/ic_quests"
-            android:contentDescription="Quests"
+            android:contentDescription="Tasks"
             android:clickable="true"
             android:focusable="true"
             app:tint="#B3FFFFFF" />
@@ -379,13 +379,13 @@
         <ImageView
             android:id="@+id/navCustomize"
             android:layout_width="0dp"
-            android:layout_height="32dp"
+            android:layout_height="28dp"
             android:layout_weight="1"
             android:src="@drawable/ic_customize"
             android:contentDescription="Customize"
             android:clickable="true"
             android:focusable="true"
-            app:tint="#B3FFFFFF" />
+            app:tint="#FFFFFF" />
 
     </LinearLayout>
 
