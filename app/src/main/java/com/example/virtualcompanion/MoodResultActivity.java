@@ -35,13 +35,13 @@ public class MoodResultActivity extends BaseActivity {
             });
         }
 
-        // Home → MoodActivity
+        // Home → MoodResultActivity
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
 
                 Intent intent = new Intent(
                         MoodResultActivity.this,
-                        MoodActivity.class
+                        MoodResultActivity.class
                 );
 
                 startActivity(intent);
