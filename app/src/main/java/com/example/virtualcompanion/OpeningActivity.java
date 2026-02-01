@@ -20,7 +20,13 @@ public class OpeningActivity extends BaseActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
         );
 
-        DatabaseManager.get(this); // Initialize database
+        DatabaseManager db = DatabaseManager.get(this); // Initialize database
+
+        // ================= TESTING ONLY =================
+        // Uncomment the line below to reset today's mood every time you open the app
+        db.deleteMoodForToday();
+        // ================================================
+
         setContentView(R.layout.activity_opening);
 
         MusicManager.startMusic(this);

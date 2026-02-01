@@ -152,11 +152,16 @@ public class CustomizeActivity extends BaseActivity {
             db.setName(name);
             db.setGender(db.getGender());
 
-            startActivity(new Intent(
-                    this,
-                    MoodActivity.class
-            ));
+            Intent intent;
+            if (db.hasSelectedMoodToday()) {
+                // Already selected today -> Go straight to Result screen
+                intent = new Intent(this, MoodResultActivity.class);
+            } else {
+                // New day or first time -> Go to Mood selection
+                intent = new Intent(this, MoodActivity.class);
+            }
 
+            startActivity(intent);
             finish();
         });
     }

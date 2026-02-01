@@ -102,9 +102,11 @@ public class MoodActivity extends BaseActivity {
                 return;
             }
 
-            DatabaseManager.get(this).saveMood(
+            // Save mood with current date
+            DatabaseManager dbManager = DatabaseManager.get(this);
+            dbManager.saveMood(
                     selectedMoodIndex + 1,
-                    String.valueOf(System.currentTimeMillis())
+                    dbManager.getTodayDate()
             );
 
             Intent intent = new Intent(
@@ -115,6 +117,7 @@ public class MoodActivity extends BaseActivity {
             intent.putExtra("selected_mood", selectedMoodIndex);
 
             startActivity(intent);
+            finish(); // Finish this activity so they can't go back to selection today
         });
 
 
@@ -154,11 +157,11 @@ public class MoodActivity extends BaseActivity {
                 Toast.makeText(MoodActivity.this, "Please set your mood first", Toast.LENGTH_SHORT).show();
             });
         }
-        
+
         // Update coin display
         updateCoinDisplay();
     }
-    
+
     private void updateCoinDisplay() {
         android.widget.TextView coinAmount = findViewById(R.id.coinAmount);
         if (coinAmount != null) {
@@ -168,7 +171,7 @@ public class MoodActivity extends BaseActivity {
             } catch (Exception e) {
                 coinAmount.setText("0");
             }
-            
+
             // CHEAT MODE: Long press to add 100 coins
             coinAmount.setOnLongClickListener(v -> {
                 DatabaseManager.get(this).addCoins(100);
@@ -182,10 +185,10 @@ public class MoodActivity extends BaseActivity {
     /**
      * Apply gender-specific emoji images
      */
-    private void applyGenderEmojis(ImageView emoji1, ImageView emoji2, ImageView emoji3, 
-                                    ImageView emoji4, ImageView emoji5) {
+    private void applyGenderEmojis(ImageView emoji1, ImageView emoji2, ImageView emoji3,
+                                   ImageView emoji4, ImageView emoji5) {
         int[] emojiResources = "male".equalsIgnoreCase(currentGender) ? MALE_EMOJIS : FEMALE_EMOJIS;
-        
+
         emoji1.setImageResource(emojiResources[0]);
         emoji2.setImageResource(emojiResources[1]);
         emoji3.setImageResource(emojiResources[2]);

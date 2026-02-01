@@ -4,8 +4,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * DatabaseManager
@@ -37,6 +40,15 @@ public class DatabaseManager {
         }
 
         return instance;
+    }
+
+    // ================= DATE HELPER =================
+
+    /**
+     * Get today's date as string (YYYY-MM-DD)
+     */
+    public String getTodayDate() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
 
     // ================= USER =================
@@ -98,8 +110,8 @@ public class DatabaseManager {
             c.close();
             SQLiteDatabase writeDb = helper.getWritableDatabase();
             writeDb.execSQL(
-                "INSERT INTO user (name, coins, pet_gender) " +
-                "VALUES ('Iggy',150,'male');"
+                    "INSERT INTO user (name, coins, pet_gender) " +
+                            "VALUES ('Iggy',150,'male');"
             );
             coins = 150;
             return coins;
@@ -175,16 +187,52 @@ public class DatabaseManager {
     }
 
     /**
+     * Check if mood was already selected today
+     */
+    public boolean hasSelectedMoodToday() {
+        SQLiteDatabase db = helper.getReadableDatabase();
+        String today = getTodayDate();
+
+        Cursor c = db.rawQuery(
+                "SELECT id FROM mood WHERE date = ?",
+                new String[]{today}
+        );
+
+        boolean exists = c.getCount() > 0;
+        c.close();
+        return exists;
+    }
+
+    /**
+     * [TESTING ONLY] Delete today's mood selection
+     */
+    public void deleteMoodForToday() {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.execSQL("DELETE FROM mood WHERE date = ?", new Object[]{getTodayDate()});
+    }
+
+    /**
      * Get latest saved mood (0–4)
      */
     public int getLatestMood() {
 
         SQLiteDatabase db = helper.getReadableDatabase();
 
+        // Try to get today's mood first
+        String today = getTodayDate();
         Cursor c = db.rawQuery(
-                "SELECT value FROM mood ORDER BY date DESC LIMIT 1",
-                null
+                "SELECT value FROM mood WHERE date = ? ORDER BY id DESC LIMIT 1",
+                new String[]{today}
         );
+
+        if (!c.moveToFirst()) {
+            // If no mood today, get the absolute latest one
+            c.close();
+            c = db.rawQuery(
+                    "SELECT value FROM mood ORDER BY id DESC LIMIT 1",
+                    null
+            );
+        }
 
         int moodIndex = 0; // default = Neutral
 
@@ -250,4 +298,3 @@ public class DatabaseManager {
         db.execSQL("UPDATE quest SET rewarded=1 WHERE id=?", new Object[]{questId});
     }
 }
-
