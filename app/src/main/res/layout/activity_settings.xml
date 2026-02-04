@@ -188,11 +188,14 @@
 
                 <!-- Name Input with Edit Icon -->
                 <LinearLayout
+                    android:id="@+id/nameInputContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center"
-                    android:layout_marginBottom="20dp">
+                    android:layout_marginBottom="20dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <EditText
                         android:id="@+id/petNameInput"
@@ -212,7 +215,11 @@
                         android:shadowColor="#CC000000"
                         android:shadowDx="0"
                         android:shadowDy="3"
-                        android:shadowRadius="8" />
+                        android:shadowRadius="8"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:cursorVisible="false"
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/editNameIcon"
@@ -221,6 +228,8 @@
                         android:layout_marginStart="10dp"
                         android:contentDescription="Edit name"
                         android:src="@drawable/ic_edit"
+                        android:clickable="true"
+                        android:focusable="true"
                         app:tint="#FFFFFF" />
 
                 </LinearLayout>
