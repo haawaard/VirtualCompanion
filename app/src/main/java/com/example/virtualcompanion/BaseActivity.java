@@ -11,8 +11,11 @@ public class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        // Always ensure music is running
-        MusicManager.startMusic(this);
+        // IMPORTANT: Only start background music if NOT in a quest session
+        // QuestSessionActivity will handle its own music
+        if (!(this instanceof QuestSessionActivity)) {
+            MusicManager.startMusic(this);
+        }
 
         // Apply pet name to title
         applyPetNameToTitle();

@@ -12,7 +12,7 @@
         android:id="@+id/backgroundImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/background_placeholder"
+        android:src="@drawable/bg_main"
         android:scaleType="centerCrop"
         android:contentDescription="Background"
         app:layout_constraintTop_toTopOf="parent"
@@ -112,30 +112,25 @@
 
     </LinearLayout>
 
-    <!-- Pet Image - Overlapping design -->
+    <!-- Pet Image - Adaptive with constraints (like activity_mood_result) -->
     <ImageView
         android:id="@+id/customizablePet"
-        android:layout_width="421dp"
-        android:layout_height="539dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:adjustViewBounds="true"
         android:contentDescription="Your Pet"
         android:elevation="5dp"
         android:scaleType="fitCenter"
         android:src="@drawable/emotion_neutral"
-        app:layout_constraintBottom_toBottomOf="@id/genderContainer"
-        app:layout_constraintDimensionRatio="H,4:5"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="1.02"
+        app:layout_constraintDimensionRatio="H,421:539"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/nameContainer"
-        app:layout_constraintVertical_bias="0.0"
-        app:layout_constraintWidth_percent="0.95" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.42" />
 
-    <!-- Gender Label with shadow - overlays bottom of pet -->
-
-    <!-- Gender Selection Buttons - optimized for 1.1x scale -->
-
-    <!-- Done Button - Bottom positioned -->
-
+    <!-- Gender Label with shadow -->
     <TextView
         android:id="@+id/genderLabel"
         android:layout_width="wrap_content"
@@ -157,9 +152,9 @@
         app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@id/genderContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Gender Selection Buttons -->
     <LinearLayout
         android:id="@+id/genderContainer"
         android:layout_width="wrap_content"
@@ -170,7 +165,6 @@
         android:padding="8dp"
         app:layout_constraintBottom_toTopOf="@id/doneButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.533"
         app:layout_constraintStart_toStartOf="parent">
 
         <!-- Boy Button -->
@@ -247,6 +241,7 @@
 
     </LinearLayout>
 
+    <!-- Done Button - Bottom positioned -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/doneButton"
         android:layout_width="0dp"

@@ -126,9 +126,10 @@ public class QuestsActivity extends BaseActivity {
         if (db != null) {
             // Check if Happy mood AND first quest already completed today
             if (moodIndex == 1 && db.hasCompletedFirstQuestToday()) {
-                showEmptyState("You're happy! No more tasks needed today! 😊\n\nEnjoy your day!");
+                showEmptyState("No quests available today!  Cherish your mood! \n Enjoy your day and check back tomorrow!");
                 return;
             }
+
 
             List<Quest> updatedQuests = db.getQuestsForMood(moodIndex);
 

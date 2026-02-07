@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -22,6 +23,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.material.button.MaterialButton;
 
 public class QuestSessionActivity extends BaseActivity {
+
+    private static final String TAG = "QuestSessionActivity";
 
     private TextView questTitleText;
     private TextView questDescriptionText;
@@ -56,15 +59,61 @@ public class QuestSessionActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quest_session);
 
+        Log.d(TAG, "onCreate started");
+
+        // IMPORTANT: Load quest data FIRST to get the mood
+        loadQuestDataEarly();
+
+
+        // Get the appropriate music track for this mood
+        int questTrack = MusicManager.getQuestTrackForMood(questMood);
+
+
+        // Switch to mood-specific quest music (this saves the previous track)
+        MusicManager.startQuestMusic(this, questMood);
+
         initializeViews();
         setupBackButton();
-        loadQuestData();
         setupBackground();
         setupMoodAnimations();
         startQuestSession();
 
         // Initialize vibrator
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    }
+
+    // Helper method to get track name for debugging
+    private String getTrackName(int trackId) {
+        if (trackId == MusicManager.TRACK_BACKGROUND) return "background_music";
+        if (trackId == MusicManager.TRACK_QUEST_HAPPY) return "quest_happy";
+        if (trackId == MusicManager.TRACK_QUEST_SAD) return "quest_sad";
+        if (trackId == MusicManager.TRACK_QUEST_ANGRY) return "quest_angry";
+        if (trackId == MusicManager.TRACK_QUEST_ANXIOUS) return "quest_anxious";
+        if (trackId == MusicManager.TRACK_QUEST_NEUTRAL) return "quest_neutral";
+        return "unknown";
+    }
+
+    // ================= LOAD QUEST DATA EARLY (to get mood) =================
+    private void loadQuestDataEarly() {
+        Intent intent = getIntent();
+
+        int questId = intent.getIntExtra("quest_id", -1);
+        String questTitle = intent.getStringExtra("quest_title");
+        String questDescription = intent.getStringExtra("quest_description");
+        int questReward = intent.getIntExtra("quest_reward", 0);
+        int questTimer = intent.getIntExtra("quest_timer", 5);
+        questMood = intent.getStringExtra("quest_mood");
+        questPosition = intent.getIntExtra("quest_position", 0);
+
+        Log.d(TAG, "Quest loaded - ID: " + questId + ", Mood: " + questMood + ", Title: " + questTitle);
+
+        if (questId == -1) {
+            Toast.makeText(this, "Error loading quest", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        currentQuest = new Quest(questId, questTitle, questDescription, questReward, questMood, questTimer);
     }
 
     // ================= INITIALIZE =================
@@ -81,6 +130,12 @@ public class QuestSessionActivity extends BaseActivity {
         moodIndicator = findViewById(R.id.moodIndicator);
         gradientOverlay = findViewById(R.id.gradientOverlay);
         rootLayout = findViewById(R.id.rootLayout);
+
+        // Set quest title and description
+        if (currentQuest != null) {
+            questTitleText.setText(currentQuest.getTitle());
+            questDescriptionText.setText(currentQuest.getDescription());
+        }
     }
 
     // ================= SETUP BACK BUTTON =================
@@ -94,35 +149,16 @@ public class QuestSessionActivity extends BaseActivity {
                             countDownTimer.cancel();
                         }
                         stopAllAlerts();
+
+                        // Restore the music that was playing before the quest
+                        Log.d(TAG, "User cancelled quest, restoring previous music");
+                        MusicManager.restorePreQuestMusic(QuestSessionActivity.this);
+
                         finish();
                     })
                     .setNegativeButton("Continue Quest", null)
                     .show();
         });
-    }
-
-    // ================= LOAD QUEST =================
-    private void loadQuestData() {
-        Intent intent = getIntent();
-
-        int questId = intent.getIntExtra("quest_id", -1);
-        String questTitle = intent.getStringExtra("quest_title");
-        String questDescription = intent.getStringExtra("quest_description");
-        int questReward = intent.getIntExtra("quest_reward", 0);
-        int questTimer = intent.getIntExtra("quest_timer", 5);
-        questMood = intent.getStringExtra("quest_mood");
-        questPosition = intent.getIntExtra("quest_position", 0);
-
-        if (questId == -1) {
-            Toast.makeText(this, "Error loading quest", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        currentQuest = new Quest(questId, questTitle, questDescription, questReward, questMood, questTimer);
-
-        questTitleText.setText(questTitle);
-        questDescriptionText.setText(questDescription);
     }
 
     // ================= SETUP BACKGROUND =================
@@ -320,7 +356,24 @@ public class QuestSessionActivity extends BaseActivity {
         }
     }
 
-    // ================= STOP ALL ALERTS (VIBRATION + FLASH) =================
+    // ================= FLASH SCREEN =================
+    private void flashScreen() {
+        // Flash timer
+        timerFlashAnimator = ObjectAnimator.ofFloat(timerText, "alpha", 1f, 0.3f);
+        timerFlashAnimator.setDuration(500);
+        timerFlashAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        timerFlashAnimator.setRepeatMode(ObjectAnimator.REVERSE);
+        timerFlashAnimator.start();
+
+        // Flash pet
+        petFlashAnimator = ObjectAnimator.ofFloat(petDisplay, "alpha", 1f, 0.7f);
+        petFlashAnimator.setDuration(500);
+        petFlashAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        petFlashAnimator.setRepeatMode(ObjectAnimator.REVERSE);
+        petFlashAnimator.start();
+    }
+
+    // ================= STOP ALL ALERTS =================
     private void stopAllAlerts() {
         // Stop vibration
         if (vibrator != null) {
@@ -328,140 +381,94 @@ public class QuestSessionActivity extends BaseActivity {
         }
 
         // Stop flash animations
-        if (timerFlashAnimator != null && timerFlashAnimator.isRunning()) {
+        if (timerFlashAnimator != null) {
             timerFlashAnimator.cancel();
+            timerText.setAlpha(1f);
         }
-        if (petFlashAnimator != null && petFlashAnimator.isRunning()) {
+
+        if (petFlashAnimator != null) {
             petFlashAnimator.cancel();
+            petDisplay.setAlpha(1f);
         }
-
-        // Clear any remaining animations
-        timerText.clearAnimation();
-        petDisplay.clearAnimation();
-
-        // Reset alpha to fully visible
-        timerText.setAlpha(1f);
-        petDisplay.setAlpha(1f);
     }
 
-    // ================= FLASH SCREEN =================
-    private void flashScreen() {
-        // Flash timer text
-        timerFlashAnimator = ObjectAnimator.ofFloat(timerText, "alpha", 1f, 0.2f, 1f);
-        timerFlashAnimator.setDuration(500);
-        timerFlashAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-        timerFlashAnimator.start();
-
-        // Flash pet display
-        petFlashAnimator = ObjectAnimator.ofFloat(petDisplay, "alpha", 1f, 0.5f, 1f);
-        petFlashAnimator.setDuration(500);
-        petFlashAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-        petFlashAnimator.start();
-    }
-
-    // ================= COMPLETION DIALOG =================
+    // ================= SHOW COMPLETION DIALOG =================
     private void showCompletionDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Quest Check")
-                .setMessage("Have you completed this task?\n\n\"" + currentQuest.getTitle() + "\"")
-                .setPositiveButton("Yes, Done!", (dialog, which) -> {
-                    completeQuest();
+                .setTitle("Quest Complete?")
+                .setMessage("Did you complete this quest successfully?")
+                .setPositiveButton("Yes, I did it!", (dialog, which) -> {
+                    markQuestAsCompleted();
                 })
-                .setNegativeButton("Not Yet", (dialog, which) -> {
-                    restartTimer();
+                .setNegativeButton("Not yet", (dialog, which) -> {
+                    Toast.makeText(this, "Keep going! You can do it!", Toast.LENGTH_SHORT).show();
                 })
                 .setCancelable(false)
                 .show();
     }
 
-    // ================= RESTART TIMER =================
-    private void restartTimer() {
-        // STOP ALL ALERTS (VIBRATION + FLASHING)
-        stopAllAlerts();
-
-        Toast.makeText(this, "Take your time. Timer restarted.", Toast.LENGTH_SHORT).show();
-        actionButton.setEnabled(false);
-        actionButton.setText("In Progress...");
-        instructionText.setText("Keep going, you can do it!");
-
-        long timerDuration = currentQuest.getTimerMinutes() * 60 * 1000;
-        startCountdown(timerDuration);
-    }
-
-    // ================= COMPLETE QUEST =================
-    private void completeQuest() {
+    // ================= MARK QUEST AS COMPLETED =================
+    private void markQuestAsCompleted() {
         DatabaseManager db = DatabaseManager.get(this);
 
-        int currentProgress = db.getQuestProgress(currentQuest.getId());
-
-        if (currentProgress >= 100) {
-            Toast.makeText(this, "Quest already completed!", Toast.LENGTH_SHORT).show();
-            setResult(RESULT_QUEST_COMPLETED);
-            finish();
-            return;
-        }
-
-        // Mark quest as complete
+        // Mark quest as done (set progress to 100%)
         db.updateQuestProgress(currentQuest.getId(), 100);
 
-        if (!db.isQuestRewarded(currentQuest.getId())) {
-            db.addCoins(currentQuest.getReward());
-            db.markQuestRewarded(currentQuest.getId());
+        // Mark quest as rewarded
+        db.markQuestRewarded(currentQuest.getId());
 
-            Toast.makeText(
-                    this,
-                    "Quest Completed! +" + currentQuest.getReward() + " coins",
-                    Toast.LENGTH_LONG
-            ).show();
-        }
+        // Add coins
+        db.addCoins(currentQuest.getReward());
 
-        // Check if all quests complete
-        if (db.areAllCurrentQuestsComplete()) {
-            // Clear session so new 5 quests generated next time
-            db.clearCurrentQuestSession();
+        Toast.makeText(this, "+" + currentQuest.getReward() + " coins earned!", Toast.LENGTH_SHORT).show();
 
-            // Reset all quest progress for next cycle
-            db.resetAllQuestProgressForTesting();
+        // Return result
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("quest_completed", true);
+        resultIntent.putExtra("quest_position", questPosition);
+        setResult(RESULT_QUEST_COMPLETED, resultIntent);
 
-            // MARK FIRST QUEST COMPLETION FOR TODAY (ANY MOOD)
-            db.markFirstQuestCompleted();
-            android.util.Log.d("QuestSession", "Marked first quest set completed for today");
+        // Restore the music that was playing before the quest
+        Log.d(TAG, "Quest completed, restoring previous music");
+        MusicManager.restorePreQuestMusic(this);
 
-            // Go to mood selection
-            Intent intent = new Intent(this, MoodActivity.class);
-            intent.putExtra("flow", "QUEST_COMPLETE");
-            startActivity(intent);
-            finish();
-        } else {
-            // Return to quest list
-            setResult(RESULT_QUEST_COMPLETED);
-            finish();
-        }
+        finish();
     }
 
-    // ================= CLEANUP =================
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Don't pause music here - let MusicManager handle it
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Don't resume music here - let MusicManager handle it
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        Log.d(TAG, "onDestroy called");
+
+        // Stop timer
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
+
+        // Stop all animations
         stopAllAlerts();
+
+        // Restore previous music when leaving quest (if not already done)
+        Log.d(TAG, "Activity destroyed, restoring previous music");
+        MusicManager.restorePreQuestMusic(this);
     }
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setTitle("Leave Quest?")
-                .setMessage("Are you sure you want to leave this quest session?")
-                .setPositiveButton("Yes, Leave", (dialog, which) -> {
-                    if (countDownTimer != null) {
-                        countDownTimer.cancel();
-                    }
-                    stopAllAlerts();
-                    super.onBackPressed();
-                })
-                .setNegativeButton("Stay", null)
-                .show();
+        // Show confirmation dialog instead of immediately going back
+        backButton.performClick();
     }
 }
